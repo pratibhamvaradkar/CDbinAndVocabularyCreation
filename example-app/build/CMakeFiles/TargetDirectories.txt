@@ -1,0 +1,3 @@
+/home/pratibha/pyTorchMTP/example-app/build/CMakeFiles/rebuild_cache.dir
+/home/pratibha/pyTorchMTP/example-app/build/CMakeFiles/edit_cache.dir
+/home/pratibha/pyTorchMTP/example-app/build/CMakeFiles/example-app.dir

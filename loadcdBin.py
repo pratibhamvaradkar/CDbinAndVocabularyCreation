@@ -88,6 +88,8 @@ class CDbin_NET_deep4_1(nn.Module):
         x_features = self.features(input_norm(input))
         y = self.features1(x_features)
         x = y.view(y.size(0), -1)
+        print("x= ")
+        print(x)
         return L2Norm(x)
 
 
@@ -161,7 +163,7 @@ if __name__ == '__main__':
             desc = model(patch)
             descSM = sm(patch)
             # print(torch.equal(desc,descSM)) #https://pytorch.org/docs/stable/generated/torch.equal.html
-
+            # print(desc)
             # print(desc[0][0].type()) ## [1 256] Float Tensor.
     # print(i)
 

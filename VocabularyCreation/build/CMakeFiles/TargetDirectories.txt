@@ -1,0 +1,5 @@
+/home/pratibha/pyTorchMTP/VocabularyCreation/build/CMakeFiles/rebuild_cache.dir
+/home/pratibha/pyTorchMTP/VocabularyCreation/build/CMakeFiles/edit_cache.dir
+/home/pratibha/pyTorchMTP/VocabularyCreation/build/CMakeFiles/create_voc_gcn.dir
+/home/pratibha/pyTorchMTP/VocabularyCreation/build/CMakeFiles/VocabularyCreation.dir
+/home/pratibha/pyTorchMTP/VocabularyCreation/build/CMakeFiles/create_voc_cdbin.dir

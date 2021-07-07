@@ -200,82 +200,101 @@ if __name__ == '__main__':
     # # print(i)
 
 ################################################################################################################
-    # img1 = cv.imread('1305031102.175304.png',cv.IMREAD_GRAYSCALE)          # queryImage
-    # img2 = cv.imread('1305031102.211214.png',cv.IMREAD_GRAYSCALE) # trainImage
-    # # Initiate ORB detector
-    # orb = cv.ORB_create()
-    # # find the keypoints and descriptors with ORB
-    # kp1 = orb.detect(img1,None)
-    # kp2 = orb.detect(img2,None)
-    # # kp1, des1 = orb.detectAndCompute(img1,None)
-    # # kp2, des2 = orb.detectAndCompute(img2,None)
+#COMPARISON OF ORB AND CDbin FOR MATCHING.
+
+    img1 = cv.imread('1305031102.175304.png',cv.IMREAD_GRAYSCALE)          # queryImage
+    img2 = cv.imread('1305031102.211214.png',cv.IMREAD_GRAYSCALE) # trainImage
+    # Initiate ORB detector
+    orb = cv.ORB_create()
+
+    # Comment or uncomment to use ORB or BEBLID
+    beblid = cv.xfeatures2d.BEBLID_create(1.00)
+
+    # find the keypoints and descriptors with ORB
+    kp1 = orb.detect(img1,None)
+    kp2 = orb.detect(img2,None)
+
+    # kp1, des1 = orb.detectAndCompute(img1,None)
+    # kp2, des2 = orb.detectAndCompute(img2,None)
+
     # kp1d, des1_orb = orb.compute(img1,kp1)
     # kp2d, des2_orb = orb.compute(img2,kp2)
 
-    # # print("des11 type: "+ str(np.shape(des11)))
-    # # print(len(kp1))
+    kp1d, des1_beblid = beblid.compute(img1,kp1)
+    kp2d, des2_beblid = beblid.compute(img2,kp2)
+
+    # print("des11 type: "+ str(np.shape(des11)))
+    # print(len(kp1))
     # des1_cdbin = np.array(getDesc(img1, kp1))
     # des2_cdbin = np.array(getDesc(img2, kp2))
-    # # print("des1 type: "+ str(np.shape(des1)))
+    # print("des1 type: "+ str(np.shape(des1)))
 
-    # # create BFMatcher object
-    # bf = cv.BFMatcher(cv.NORM_HAMMING2, crossCheck=False)
-    # # Match descriptors.
+    # create BFMatcher object
+    bf = cv.BFMatcher(cv.NORM_HAMMING2, crossCheck=False)
+    # Match descriptors.
     # matches_brief = bf.match(des1_orb,des2_orb)
     # matches_cdbin = bf.match(des1_cdbin,des2_cdbin)
-    # print("matches: "+ str(len(matches_brief)))
-    # print("matches: "+ str(len(matches_cdbin)))
-    # # Sort them in the order of their distance.
+    matches_beblid = bf.match(des1_beblid,des2_beblid)
+
+    # print("matches_brief: "+ str(len(matches_brief)))
+    # print("matches_cdbin: "+ str(len(matches_cdbin)))
+    print("matches_beblid: "+ str(len(matches_beblid)))
+
+    # Sort them in the order of their distance.
     # matches_brief = sorted(matches_brief, key = lambda x:x.distance)
     # matches_cdbin = sorted(matches_cdbin, key = lambda x:x.distance)
-    # # Draw first 10 matches.
-    # img3 = cv.drawMatches(img1,kp1,img2,kp2,matches_cdbin[:10],None,flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-    # plt.imshow(img3),plt.show()
+    matches_beblid = sorted(matches_beblid, key = lambda x:x.distance)
 
-##################################################################################################################
-    img1 = cv.imread('/home/pratibha/Downloads/hpatches-release/i_autannes/e1.png',cv.IMREAD_GRAYSCALE)          # queryImage
-    img2 = cv.imread('/home/pratibha/Downloads/hpatches-release/i_autannes/e2.png',cv.IMREAD_GRAYSCALE) # trainImage
-    print(type(img1))
+    # Draw first 10 matches.
+    img3 = cv.drawMatches(img1,kp1,img2,kp2,matches_beblid[:20],None,flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+    plt.imshow(img3),plt.show()
+
+# ##################################################################################################################
+# TESTING CDbin ON HPATCHES DATASET
+
+#     img1 = cv.imread('/home/pratibha/Downloads/hpatches-release/i_autannes/e1.png',cv.IMREAD_GRAYSCALE)          # queryImage
+#     img2 = cv.imread('/home/pratibha/Downloads/hpatches-release/i_autannes/e2.png',cv.IMREAD_GRAYSCALE) # trainImage
+#     print(type(img1))
     
-    height = img1.shape[0]
-    model = CDbin_NET_deep4_1(256)
-    model.load_state_dict(torch.load('CDbin_5_binary_256.pth', map_location=torch.device('cpu'))) # Load weights from .pth file
-    model.eval()
+#     height = img1.shape[0]
+#     model = CDbin_NET_deep4_1(256)
+#     model.load_state_dict(torch.load('CDbin_5_binary_256.pth', map_location=torch.device('cpu'))) # Load weights from .pth file
+#     model.eval()
 
-    des1 = []
-    des2 = []
-    print(height)
-    print(math.floor(height/64))
-    for i in range(math.floor(height/64)):
-        patch1 = img1[(64*i):(64*(i+1)-1), 0:63]
-        patch2 = img2[(64*i):(64*(i+1)-1), 0:63]
-        patch1 = torch.from_numpy(patch1).type(torch.FloatTensor).unsqueeze(0).unsqueeze(0)
-        desc1 = model(patch1)
-        desc1 = desc1.squeeze(0)
-        desc1 = desc1.detach().numpy()
-        desc1 = np.sign(desc1)
-        desc1 = (desc1 > 0).astype(int)
-        desc1 = np.packbits(desc1)
-        des1.append(desc1)
+#     des1 = []
+#     des2 = []
+#     print(height)
+#     print(math.floor(height/64))
+#     for i in range(math.floor(height/64)):
+#         patch1 = img1[(64*i):(64*(i+1)-1), 0:63]
+#         patch2 = img2[(64*i):(64*(i+1)-1), 0:63]
+#         patch1 = torch.from_numpy(patch1).type(torch.FloatTensor).unsqueeze(0).unsqueeze(0)
+#         desc1 = model(patch1)
+#         desc1 = desc1.squeeze(0)
+#         desc1 = desc1.detach().numpy()
+#         desc1 = np.sign(desc1)
+#         desc1 = (desc1 > 0).astype(int)
+#         desc1 = np.packbits(desc1)
+#         des1.append(desc1)
 
-        patch2 = torch.from_numpy(patch2).type(torch.FloatTensor).unsqueeze(0).unsqueeze(0)
-        desc2 = model(patch2)
-        desc2 = desc2.squeeze(0)
-        desc2 = desc2.detach().numpy()
-        desc2 = np.sign(desc2)
-        desc2 = (desc2 > 0).astype(int)
-        desc2 = np.packbits(desc2)
-        des2.append(desc2)
-        # print(i)
+#         patch2 = torch.from_numpy(patch2).type(torch.FloatTensor).unsqueeze(0).unsqueeze(0)
+#         desc2 = model(patch2)
+#         desc2 = desc2.squeeze(0)
+#         desc2 = desc2.detach().numpy()
+#         desc2 = np.sign(desc2)
+#         desc2 = (desc2 > 0).astype(int)
+#         desc2 = np.packbits(desc2)
+#         des2.append(desc2)
+#         # print(i)
 
-    des1 = np.array(des1)
-    des2 = np.array(des2)
-    print(len(des1))
-    bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-    # Match descriptors.
-    matches_brief = bf.match(des1,des2)
-    matches_brief = sorted(matches_brief, key = lambda x:x.distance)
+#     des1 = np.array(des1)
+#     des2 = np.array(des2)
+#     print(len(des1))
+#     bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
+#     # Match descriptors.
+#     matches_brief = bf.match(des1,des2)
+#     matches_brief = sorted(matches_brief, key = lambda x:x.distance)
 
-    print("matches: "+ str(len(matches_brief)))
+#     print("matches: "+ str(len(matches_brief)))
 
 
